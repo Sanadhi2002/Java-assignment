@@ -1,0 +1,2 @@
+# Java-assignment
+Designed and implemented a Java program for an efficient delivery solution, utilizing advanced algorithms to calculate the shortest routes. The solution optimizes delivery logistics, demonstrating strong problem-solving skills and a practical understanding of algorithmic efficiency. This project showcases my ability to translate complex logistical challenges into effective and streamlined software solutions
