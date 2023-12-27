@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 // Define a Serializable Invoice class to store customer information
 class Invoice implements Serializable {
@@ -19,20 +20,84 @@ class Invoice implements Serializable {
 
 public class TSP implements Serializable {
     // Define a distance matrix representing distances between delivery stops
-    static int[][] distanceMatrix = {
-            // the distance matrix with the 10 stops
-            {0, 8, 6, 9, 10, 11, 14, 15, 12, 7},
-            {8, 0, 5, 12, 13, 15, 9, 10, 11, 6},
-            {6, 5, 0, 7, 8, 9, 12, 14, 10, 7},
-            {9, 12, 7, 0, 6, 8, 14, 16, 11, 13},
-            {10, 13, 8, 6, 0, 5, 12, 11, 10, 15},
-            {11, 15, 9, 8, 5, 0, 7, 6, 9, 14},
-            {14, 9, 12, 14, 12, 7, 0, 5, 10, 8},
-            {15, 10, 14, 16, 11, 6, 5, 0, 7, 9},
-            {12, 11, 10, 11, 10, 9, 10, 7, 0, 5},
-            {7, 6, 7, 13, 15, 14, 8, 9, 5, 0},
+    static int[][] distanceMatrix ;
+    static int[][] coordinates;
 
-    };
+    // Initialize the distance matrix
+    public static void inputDistanceMatrix(int stops) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the distance matrix (" + stops + "x" + stops + "):");
+
+        distanceMatrix = new int[stops][stops];
+        for (int i = 0; i < stops; i++) {
+            for (int j = 0; j < stops; j++) {
+                System.out.println("Enter distance from stop " + i + " to stop " + j + ":");
+                distanceMatrix[i][j] = scanner.nextInt();
+            }
+        }
+    }
+
+    public static void inputCoordinates(int stops) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the coordinates for each delivery stop (10 stops):");
+
+        coordinates = new int[stops][2];
+        for (int i = 0; i < stops; i++) {
+            System.out.println("Enter x-coordinate for stop " + i + ":");
+            coordinates[i][0] = scanner.nextInt();
+            System.out.println("Enter y-coordinate for stop " + i + ":");
+            coordinates[i][1] = scanner.nextInt();
+        }
+    }
+
+
+
+    public static void inputInvoices(ArrayList<Invoice> invoices, int stops) {
+        Scanner scanner = new Scanner(System.in);
+
+        for (int i = 0; i < stops; i++) {
+            System.out.println("Enter details for Invoice " + (i + 1) + ":");
+            System.out.print("Name: ");
+            String name = scanner.next();
+
+            double total = 0;
+            boolean validTotal = false;
+
+            while (!validTotal) {
+                try {
+                    System.out.print("Total: ");
+                    total = scanner.nextDouble();
+                    validTotal = true;
+                } catch (java.util.InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a valid number for Total.");
+                    scanner.next(); // Consume the invalid input
+                }
+            }
+
+            System.out.print("Address: ");
+            String address = scanner.next();
+
+            int invoiceId = 0;
+            boolean validId = false;
+
+            while (!validId) {
+                try {
+                    System.out.print("Invoice ID: ");
+                    invoiceId = scanner.nextInt();
+                    validId = true;
+                } catch (java.util.InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a valid integer for Invoice ID.");
+                    scanner.next(); // Consume the invalid input
+                }
+            }
+
+            invoices.add(new Invoice(name, total, address, invoiceId));
+        }
+    }
+
+
+
+
 
     //check if there are negative distances in the distance matrix
     public static boolean checkNegativeDistances() {
@@ -71,8 +136,8 @@ public class TSP implements Serializable {
     static boolean[] delivered;
 
     // Function to generate the shortest delivery route
-    public static int[] generateShortestRoute() {
-        int deliveryStops = distanceMatrix.length;//this is the number of delivery stops
+    public static int[] generateShortestRoute(int stops) {
+        int deliveryStops = stops-1;//this is the number of delivery stops
         int[] shortestRoute = new int[deliveryStops];//initializing the shortest route array to store the shortest route
         delivered = new boolean[deliveryStops];//initializing an array to keep track of the stops that have been delivered to
 
@@ -174,49 +239,31 @@ public class TSP implements Serializable {
     public static void main(String[] args) throws IOException {
 
 
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the number of delivery stops:");
+        int stops = scanner.nextInt();
+
+        inputDistanceMatrix(stops);
+        inputCoordinates(stops);
+
+        ArrayList<Invoice> invoices = new ArrayList<>();
+        inputInvoices(invoices, stops);
+
         //check if there are negative values in the distance matrix
         //check if the number of deliveries is more than 10
         //If so display an error message
         checkNegativeDistances();
-        checkBounds();
 
 
 
-       //define the coordinates of the delivery stops
-        int[][] coordinates = {
-                {distanceMatrix[0][0], distanceMatrix[0][1]},
-                {distanceMatrix[1][0], distanceMatrix[1][1]},
-                {distanceMatrix[2][0], distanceMatrix[2][1]},
-                {distanceMatrix[3][0], distanceMatrix[3][1]},
-                {distanceMatrix[4][0], distanceMatrix[4][1]},
-                {distanceMatrix[5][0], distanceMatrix[5][1]},
-                {distanceMatrix[6][0], distanceMatrix[6][1]},
-                {distanceMatrix[7][0], distanceMatrix[7][1]},
-                {distanceMatrix[8][0], distanceMatrix[8][1]},
-                {distanceMatrix[9][0], distanceMatrix[9][1]},
-
-        };
-
-        // Create an ArrayList of Invoice objects
-        ArrayList<Invoice> invoices = new ArrayList<Invoice>();
-        // Add 10 invoices to the ArrayList
-        invoices.add(new Invoice("John", 100.00, "123 Main St", 101));
-        invoices.add(new Invoice("Jane", 200.00, "456 Main St", 102));
-        invoices.add(new Invoice("Joe", 300.00, "789 Main St", 103));
-        invoices.add(new Invoice("Jill", 400.00, "101 Main St", 104));
-        invoices.add(new Invoice("Jack", 500.00, "112 Main St", 105));
-        invoices.add(new Invoice("Jenny", 600.00, "131 Main St", 106));
-        invoices.add(new Invoice("Jim", 700.00, "415 Main St", 107));
-        invoices.add(new Invoice("Jen", 800.00, "161 Main St", 108));
-        invoices.add(new Invoice("Jesse", 900.00, "718 Main St", 109));
-        invoices.add(new Invoice("Jade", 1000.00, "191 Main St", 110));
 
 
 
         // Display the route and invoice details BEFORE serialization
         System.out.println("Shortest Route (Before Serialization):");
 
-        int[] shortestRouteBefore = generateShortestRoute();
+        int[] shortestRouteBefore = generateShortestRoute(stops);
         printRoute(shortestRouteBefore, coordinates, invoices);
 
         // Serialize the shortest route and invoice objects
